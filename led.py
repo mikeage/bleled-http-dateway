@@ -3,7 +3,7 @@ from bleak import BleakClient
 
 import argparse
 import logging
-from flask import Flask
+from quart import Quart
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class BleLedDevice:
         await self.peripheral.write_gatt_char(self._characteristic(), data)
 
 logger.info("Flasking now")
-app = Flask(__name__)
+app = Quart(__name__)
 logger.info("Flasked")
 device = None
 
@@ -70,6 +70,7 @@ async def set_power(power):
 def disconnected_callback(client):
     logger.warn("Client %s was disconnected", client)
 
+@app.route("/init")
 async def main():
     logger.debug("In main")
     client = BleakClient(address)
@@ -83,6 +84,7 @@ async def main():
     logger.debug("Powering off")
     await device.power_off()
     logger.debug("Powered off")
+    return ""
         # await device.power_on()
         # # for i in range(10):
             # # await device.set_color(int(i*10*255/100),0,0)
@@ -106,4 +108,6 @@ async def main():
         # await device.power_off()
 
 
-asyncio.run(main())
+# app.run()
+#asyncio.run(main())
+
