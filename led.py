@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 BLE_ADDRESS = os.getenv("BLE_ADDRESS")
+assert BLE_ADDRESS
 
 BLEDOM_CHARACTERISTIC = "0000fff3-0000-1000-8000-00805f9b34fb"
 
@@ -103,7 +104,7 @@ def disconnected_callback(client):
     logger.warning("Client %s was disconnected", client)
 
 
-@app.route("/init")
+@app.before_serving
 async def main():
     logger.debug("In main")
     client = BleakClient(BLE_ADDRESS)
