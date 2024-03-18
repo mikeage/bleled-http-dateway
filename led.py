@@ -3,6 +3,7 @@ from bleak import BleakClient
 
 import argparse
 import logging
+from flask import Flask
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -49,36 +50,60 @@ class BleLedDevice:
         logger.debug("sending message %s" % list(data))
         await self.peripheral.write_gatt_char(self._characteristic(), data)
 
+logger.info("Flasking now")
+app = Flask(__name__)
+logger.info("Flasked")
+device = None
+
+
+@app.route("/power/<power>")
+async def set_power(power):
+    print("device = ", device)
+    if power == "on":
+        await device.power_on()
+    elif power == "off":
+        await device.power_off()
+    else:
+        raise AssertionError
+    return ""
+
+def disconnected_callback(client):
+    logger.warn("Client %s was disconnected", client)
+
 async def main():
     logger.debug("In main")
-    async with BleakClient(address) as client:
-        logger.debug("Got bleak client")
-        
-        device = await BleLedDevice.new(client)
-        logger.debug("Powering off")
-        await device.power_off()
-        logger.debug("Powered off")
-        await device.power_on()
-        # for i in range(10):
-            # await device.set_color(int(i*10*255/100),0,0)
-            # await asyncio.sleep(1)
-        # await device.set_color(128,64,192)
-        await device.set_color(int(1*10*255/100),0,0)
-        # for i in range(10):
-            # await device.set_brightness(10*i)
-            # await asyncio.sleep(1)
-        await device.set_brightness(10)
-        await asyncio.sleep(1)
-        await device.set_brightness(100)
-        await asyncio.sleep(1)
-        await device.set_color(int(10*10*255/100),0,0)
-        await asyncio.sleep(1)
-        await device.set_brightness(10)
-        await asyncio.sleep(1)
-        await device.set_brightness(100)
-        await asyncio.sleep(1)
+    client = BleakClient(address)
+    await client.connect()
+    logger.debug("Got bleak client")
+    
+    global device
+    device = await BleLedDevice.new(client)
+    logger.debug("Starting flask")
+    
+    logger.debug("Powering off")
+    await device.power_off()
+    logger.debug("Powered off")
+        # await device.power_on()
+        # # for i in range(10):
+            # # await device.set_color(int(i*10*255/100),0,0)
+            # # await asyncio.sleep(1)
+        # # await device.set_color(128,64,192)
+        # await device.set_color(int(1*10*255/100),0,0)
+        # # for i in range(10):
+            # # await device.set_brightness(10*i)
+            # # await asyncio.sleep(1)
+        # await device.set_brightness(10)
+        # await asyncio.sleep(1)
+        # await device.set_brightness(100)
+        # await asyncio.sleep(1)
+        # await device.set_color(int(10*10*255/100),0,0)
+        # await asyncio.sleep(1)
+        # await device.set_brightness(10)
+        # await asyncio.sleep(1)
+        # await device.set_brightness(100)
+        # await asyncio.sleep(1)
 
-        await device.power_off()
+        # await device.power_off()
 
 
 asyncio.run(main())
