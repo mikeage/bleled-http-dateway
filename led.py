@@ -68,9 +68,28 @@ app = Quart(__name__)
 logger.info("Running")
 
 
+@app.route("/brightness/<brightness>")
+async def set_brightness(brightness):
+    brightness = int(brightness)
+    logger.info("Setting %s to %s%% brightness", device, brightness)
+    await device.set_brightness(brightness)
+    return ""
+
+@app.route("/color/<rgb_color>")
+async def set_color(rgb_color):
+    logger.info("Setting %s to 0x%s%%", device, rgb_color)
+    if rgb_color.startswith('#'):
+        rgb_color = rgb_color[1:] 
+    assert len(rgb_color) == 6
+    r = int(rgb_color[0:2], 16)
+    g = int(rgb_color[2:4], 16)
+    b = int(rgb_color[4:6], 16)
+    await device.set_color(r, g, b)
+    return ""
+    
 @app.route("/power/<power>")
 async def set_power(power):
-    print("device = ", device)
+    logger.info("Turning %s %s", device, power)
     if power == "on":
         await device.power_on()
     elif power == "off":
