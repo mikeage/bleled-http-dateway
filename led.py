@@ -4,6 +4,7 @@ import logging
 import os
 
 from bleak import BleakClient
+from bleak.exc import BleakError
 from quart import Quart
 
 if os.getenv("VERBOSE"):
@@ -60,7 +61,11 @@ class BleLedDevice:
                           0xEF])
 
         logger.debug("sending message %s", list(data))
-        await self.peripheral.write_gatt_char(self._characteristic(), data)
+        try:
+            await self.peripheral.write_gatt_char(self._characteristic(), data)
+        except BleakError:
+            await connect()
+            await self.generic_command(id, arg0, arg1, arg2, arg3, arg4)
 
 
 device = None
@@ -105,8 +110,8 @@ def disconnected_callback(client):
 
 
 @app.before_serving
-async def main():
-    logger.debug("In main")
+async def connect():
+    logger.debug("Connecting")
     client = BleakClient(BLE_ADDRESS)
     await client.connect()
     logger.debug("Connected")
