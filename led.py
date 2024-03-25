@@ -1,5 +1,4 @@
 # pylint: disable=missing-function-docstring
-import asyncio
 import logging
 import os
 
@@ -116,36 +115,8 @@ async def connect():
     await client.connect()
     logger.debug("Connected")
 
-    global device
+    global device  # pylint: disable=global-statement
     device = await BleLedDevice.new(client)
     logger.debug("Device assigned (%s)", device)
 
     return ""
-    # logger.debug("Powering off")
-    # await device.power_off()
-    # logger.debug("Powered off")
-    # await device.power_on()
-    # # for i in range(10):
-    # # await device.set_color(int(i*10*255/100),0,0)
-    # # await asyncio.sleep(1)
-    # # await device.set_color(128,64,192)
-    # await device.set_color(int(1*10*255/100),0,0)
-    # # for i in range(10):
-    # # await device.set_brightness(10*i)
-    # # await asyncio.sleep(1)
-    # await device.set_brightness(10)
-    # await asyncio.sleep(1)
-    # await device.set_brightness(100)
-    # await asyncio.sleep(1)
-    # await device.set_color(int(10*10*255/100),0,0)
-    # await asyncio.sleep(1)
-    # await device.set_brightness(10)
-    # await asyncio.sleep(1)
-    # await device.set_brightness(100)
-    # await asyncio.sleep(1)
-
-    # await device.power_off()
-
-
-# app.run()
-# asyncio.run(main())
